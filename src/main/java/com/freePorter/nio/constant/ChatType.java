@@ -1,6 +1,8 @@
 package com.freePorter.nio.constant;
 
 public interface ChatType {
+
+	//test
 	
 	/** 心跳 */
 	byte PING = 0;

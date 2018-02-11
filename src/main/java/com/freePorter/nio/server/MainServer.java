@@ -25,6 +25,8 @@ public class MainServer {
 
 	public void bind(int port) throws Exception {
 
+		//test
+
 		// 服务器线程组 用于网络事件的处理 一个用于服务器接收客户端的连接
 		// 另一个线程组用于处理SocketChannel的网络读写
 		EventLoopGroup bossGroup = new NioEventLoopGroup(2);

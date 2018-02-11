@@ -13,6 +13,8 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,8 +78,8 @@ public class MainServer {
 			ChannelPipeline pipeline = ch.pipeline();
 
 			pipeline.addLast("idleStateHandler", new IdleStateHandler(0, PropertyUtils.WRITER_IDLE_TIME_SECONDS,0));
-			pipeline.addLast("decoder", new MsgDecoder());
-			pipeline.addLast("encoder", new MsgEncoder());
+			pipeline.addLast("frameDecoder", new LengthFieldPrepender(4));
+			pipeline.addLast("frameEncoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,0,4,0,4));
 			
 			pipeline.addLast("service", new ServerHandler());
 		}
@@ -86,9 +88,6 @@ public class MainServer {
 
 	public static void main(String[] args) throws Exception {
 		
-		//清除数据
-		clear();
-		
 		//监控消息队列的消息
 		Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(new MessageMonitor(), 1000L,100L, TimeUnit.MILLISECONDS);
 		
@@ -96,8 +95,4 @@ public class MainServer {
 
 	}
 	
-	public static void clear(){
-		JedisUtils.del(RedisKey.ONLINE_USERS);
-		JedisUtils.del(RedisKey.USER_TOKEN);
-	}
 }
